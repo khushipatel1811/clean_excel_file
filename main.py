@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import re
 import io
+# from pymongo import MongoClient
 
 
 
@@ -98,39 +99,3 @@ with tab1:
 
         except Exception as e:
             st.error(f"Error: {e}")
-
-# with tab2:
-#     st.header("Export From MongoDB")
-#     mongo_uri = st.text_input("MongoDB URI", value="mongodb://localhost:27017")
-#     db_name = st.text_input("Database Name")
-#     collection_name = st.text_input("Collection Name")
-#     fill_choice_mongo = st.radio("Fill empty values with:", ["N/A", "Blank"], key="mongo_fill")
-#     fill_value_mongo = "N/A" if fill_choice_mongo == "N/A" else ""
-#     output_name_mongo = st.text_input("Output file name (Mongo)", value="mongo_export")
-#     output_format_mongo = st.selectbox("Download format", ["Excel", "CSV", "JSON"], key="mongo_format")
-#     if st.button("🔄 Fetch and Clean from MongoDB"):
-#         try:
-#             client = MongoClient(mongo_uri)
-#             db = client[db_name]
-#             collection = db[collection_name]
-#             data = list(collection.find())
-
-#             if not data:
-#                 st.warning("No documents found.")
-#                 st.stop()
-
-#             df = pd.DataFrame(data)
-
-#             if '_id' in df.columns:
-#                 df.drop(columns=['_id'], inplace=True)
-
-#             df = clean_dataframe(df, fill_value_mongo)
-
-#             st.success("✅ Data fetched and cleaned from MongoDB!")
-#             st.dataframe(df.head())
-
-#             download_file(df, output_name_mongo, output_format_mongo)
-
-#         except Exception as e:
-#             st.error(f"MongoDB Error: {e}")
-
