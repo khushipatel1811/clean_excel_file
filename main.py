@@ -1,92 +1,8 @@
-# import streamlit as st
-# import pandas as pd
-# import re
-# import io
-#
-# # Compile regex patterns
-# special_char_pattern = re.compile(r'[+$₹#]')
-#
-# # Cleaning Function
-# def clean_text(text, fill_value):
-#     if pd.isna(text) or str(text).strip() == '':
-#         return fill_value
-#
-#     text = str(text).strip()
-#
-#     # Fix garbled characters
-#     try:
-#         text = text.encode('latin1').decode('utf-8')
-#     except (UnicodeEncodeError, UnicodeDecodeError):
-#         pass
-#
-#     # Remove HTML, newlines, escaped characters
-#     text = re.sub(r'<.*?>', '', text)
-#     text = re.sub(r'[\r\n]+', ' ', text)
-#     text = text.replace('\\r', ' ').replace('\\n', ' ')
-#     text = special_char_pattern.sub('', text)
-#     text = re.sub(r'\s+', ' ', text)
-#
-#     return text.strip()
-#
-# # UI
-# st.title("🧼 Excel/CSV Cleaner")
-# st.write("Upload a file to clean unwanted characters, spacing, HTML tags, and garbled text.")
-#
-# # Choose N/A or blank
-# fill_choice = st.radio("Fill empty values with:", ["N/A", "Blank"])
-# fill_value = "N/A" if fill_choice == "N/A" else ""
-#
-# # File uploader
-# uploaded_file = st.file_uploader("Upload Excel or CSV file", type=["xlsx", "xls", "csv"])
-#
-# if uploaded_file:
-#     file_name = uploaded_file.name
-#     ext = file_name.split('.')[-1].lower()
-#
-#     try:
-#         if ext in ['xlsx', 'xls']:
-#             df = pd.read_excel(uploaded_file)
-#         elif ext == 'csv':
-#             try:
-#                 df = pd.read_csv(uploaded_file, encoding='utf-8')
-#             except UnicodeDecodeError:
-#                 df = pd.read_csv(uploaded_file, encoding='latin1')
-#         else:
-#             st.error("Unsupported file type.")
-#             st.stop()
-#
-#         # Clean headers
-#         df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]
-#
-#         # Clean each cell
-#         for col in df.columns:
-#             df[col] = df[col].map(lambda x: clean_text(x, fill_value))
-#
-#         # Download button
-#         towrite = io.BytesIO()
-#         if ext in ['xlsx', 'xls']:
-#             with pd.ExcelWriter(towrite, engine='xlsxwriter') as writer:
-#                 df.to_excel(writer, index=False)
-#             mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-#             download_name = file_name.replace(f'.{ext}', f'_cleaned.{ext}')
-#         else:
-#             df.to_csv(towrite, index=False)
-#             mime = 'text/csv'
-#             download_name = file_name.replace(f'.{ext}', f'_cleaned.csv')
-#
-#         towrite.seek(0)
-#         st.success("✅ File cleaned successfully!")
-#         st.download_button("📥 Download Cleaned File", towrite, file_name=download_name, mime=mime)
-#
-#     except Exception as e:
-#         st.error(f"❌ Failed to clean file: {e}")
-
 
 import streamlit as st
 import pandas as pd
 import re
 import io
-from pymongo import MongoClient
 
 
 
@@ -183,37 +99,38 @@ with tab1:
         except Exception as e:
             st.error(f"Error: {e}")
 
-with tab2:
-    st.header("Export From MongoDB")
-    mongo_uri = st.text_input("MongoDB URI", value="mongodb://localhost:27017")
-    db_name = st.text_input("Database Name")
-    collection_name = st.text_input("Collection Name")
-    fill_choice_mongo = st.radio("Fill empty values with:", ["N/A", "Blank"], key="mongo_fill")
-    fill_value_mongo = "N/A" if fill_choice_mongo == "N/A" else ""
-    output_name_mongo = st.text_input("Output file name (Mongo)", value="mongo_export")
-    output_format_mongo = st.selectbox("Download format", ["Excel", "CSV", "JSON"], key="mongo_format")
-    if st.button("🔄 Fetch and Clean from MongoDB"):
-        try:
-            client = MongoClient(mongo_uri)
-            db = client[db_name]
-            collection = db[collection_name]
-            data = list(collection.find())
+# with tab2:
+#     st.header("Export From MongoDB")
+#     mongo_uri = st.text_input("MongoDB URI", value="mongodb://localhost:27017")
+#     db_name = st.text_input("Database Name")
+#     collection_name = st.text_input("Collection Name")
+#     fill_choice_mongo = st.radio("Fill empty values with:", ["N/A", "Blank"], key="mongo_fill")
+#     fill_value_mongo = "N/A" if fill_choice_mongo == "N/A" else ""
+#     output_name_mongo = st.text_input("Output file name (Mongo)", value="mongo_export")
+#     output_format_mongo = st.selectbox("Download format", ["Excel", "CSV", "JSON"], key="mongo_format")
+#     if st.button("🔄 Fetch and Clean from MongoDB"):
+#         try:
+#             client = MongoClient(mongo_uri)
+#             db = client[db_name]
+#             collection = db[collection_name]
+#             data = list(collection.find())
 
-            if not data:
-                st.warning("No documents found.")
-                st.stop()
+#             if not data:
+#                 st.warning("No documents found.")
+#                 st.stop()
 
-            df = pd.DataFrame(data)
+#             df = pd.DataFrame(data)
 
-            if '_id' in df.columns:
-                df.drop(columns=['_id'], inplace=True)
+#             if '_id' in df.columns:
+#                 df.drop(columns=['_id'], inplace=True)
 
-            df = clean_dataframe(df, fill_value_mongo)
+#             df = clean_dataframe(df, fill_value_mongo)
 
-            st.success("✅ Data fetched and cleaned from MongoDB!")
-            st.dataframe(df.head())
+#             st.success("✅ Data fetched and cleaned from MongoDB!")
+#             st.dataframe(df.head())
 
-            download_file(df, output_name_mongo, output_format_mongo)
+#             download_file(df, output_name_mongo, output_format_mongo)
 
-        except Exception as e:
-            st.error(f"MongoDB Error: {e}")
+#         except Exception as e:
+#             st.error(f"MongoDB Error: {e}")
+
