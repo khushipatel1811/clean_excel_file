@@ -3,9 +3,6 @@ import streamlit as st
 import pandas as pd
 import re
 import io
-# from pymongo import MongoClient
-
-
 
 def clean_text(text, fill_value):
     if pd.isna(text) or str(text).strip() == '':
@@ -63,39 +60,37 @@ def download_file(df, output_name, output_format):
         mime=mime
     )
 
-st.title("🧼 Data Cleaner & MongoDB Exporter")
-tab1, tab2 = st.tabs(["🗂 Upload File", "🧬 MongoDB Export"])
+st.title("🧼 Data Cleaner ")
 
-with tab1:
-    st.header("Upload Excel or CSV to Clean")
+st.header("Upload Excel or CSV to Clean")
 
-    fill_choice = st.radio("Fill empty values with:", ["N/A", "Blank"])
-    fill_value = "N/A" if fill_choice == "N/A" else ""
+fill_choice = st.radio("Fill empty values with:", ["N/A", "Blank"])
+fill_value = "N/A" if fill_choice == "N/A" else ""
 
-    uploaded_file = st.file_uploader("Choose Excel or CSV file", type=["xlsx", "xls", "csv"])
-    output_name = st.text_input("Output file name", value="cleaned_file")
-    output_format = st.selectbox("Download format", ["Excel", "CSV", "JSON"])
+uploaded_file = st.file_uploader("Choose Excel or CSV file", type=["xlsx", "xls", "csv"])
+output_name = st.text_input("Output file name", value="cleaned_file")
+output_format = st.selectbox("Download format", ["Excel", "CSV", "JSON"])
 
-    if uploaded_file:
-        try:
-            ext = uploaded_file.name.split('.')[-1].lower()
+if uploaded_file:
+    try:
+        ext = uploaded_file.name.split('.')[-1].lower()
 
-            if ext in ['xlsx', 'xls']:
-                df = pd.read_excel(uploaded_file)
-            elif ext == 'csv':
-                try:
-                    df = pd.read_csv(uploaded_file, encoding='utf-8')
-                except UnicodeDecodeError:
-                    df = pd.read_csv(uploaded_file, encoding='latin1')
-            else:
-                st.error("Unsupported file format.")
-                st.stop()
+        if ext in ['xlsx', 'xls']:
+            df = pd.read_excel(uploaded_file)
+        elif ext == 'csv':
+            try:
+                df = pd.read_csv(uploaded_file, encoding='utf-8')
+            except UnicodeDecodeError:
+                df = pd.read_csv(uploaded_file, encoding='latin1')
+        else:
+            st.error("Unsupported file format.")
+            st.stop()
 
-            df = clean_dataframe(df, fill_value)
-            st.success("✅ File cleaned successfully!")
-            st.dataframe(df.head())
+        df = clean_dataframe(df, fill_value)
+        st.success("✅ File cleaned successfully!")
+        st.dataframe(df.head())
 
-            download_file(df, output_name, output_format)
+        download_file(df, output_name, output_format)
 
-        except Exception as e:
-            st.error(f"Error: {e}")
+    except Exception as e:
+        st.error(f"Error: {e}")
